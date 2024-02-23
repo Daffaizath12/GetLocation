@@ -11,6 +11,8 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -47,6 +49,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MapView mapView;
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private boolean isLocationChangedMessageShown = false;
+    private boolean isLocationMarkerAdded = false; // Tambahkan variabel ini
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,22 +78,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Minta izin akses lokasi pengguna
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Jika izin telah diberikan, tampilkan lokasi saat ini pada peta
-//            fusedLocationProviderClient.getLastLocation()
-//                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-//                        @Override
-//                        public void onSuccess(Location location) {
-//                            if (location != null) {
-//                                LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-//                                googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Lokasi saya"));
-//                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-//                            }
-//                        }
-//                    });
             showLastKnownLocation();
         } else {
             // Jika izin belum diberikan, minta izin kepada pengguna
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
+
+        // Tombol kembali
+        ImageButton backButton = findViewById(R.id.btnBack);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Kembali ke MenuActivity
+                Intent intent = new Intent(MapsActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish(); // Menutup LoginActivity
+            }
+        });
     }
 
     @Override
@@ -103,17 +108,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Jika pengguna memberikan izin, tampilkan lokasi saat ini pada peta
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//                    fusedLocationProviderClient.getLastLocation()
-//                            .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-//                                @Override
-//                                public void onSuccess(Location location) {
-//                                    if (location != null) {
-//                                        LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-//                                        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Lokasi saya"));
-//                                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-//                                    }
-//                                }
-//                            });
                     showLastKnownLocation();
                 }
             } else {
@@ -124,6 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
     private void showLastKnownLocation() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Jika izin telah diberikan, tampilkan lokasi saat ini pada peta
@@ -133,9 +128,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         public void onSuccess(Location location) {
                             if (location != null) {
                                 LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-//                                googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Lokasi saya"));
+                                if (!isLocationChangedMessageShown) {
+                                    Toast.makeText(getBaseContext(), "Location changed : Lat: "+location.getLatitude()+""+"\n Lng: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+                                    isLocationChangedMessageShown = true;
+                                }
                                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-                                Toast.makeText(getBaseContext(), "Location changed : Lat: "+location.getLatitude()+""+"\n Lng: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+
+                                if (!isLocationMarkerAdded) { // Tambahkan pengecekan di sini
+                                    googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Lokasi saya"));
+                                    isLocationMarkerAdded = true; // Setelah ditambahkan, tandai sebagai sudah ditambahkan
+                                }
                             }
                         }
                     });
@@ -150,9 +152,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             public void onSuccess(Location location) {
                                 if (location != null) {
                                     LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                    googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Lokasi saya"));
-                                    // googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
-                                    Toast.makeText(getBaseContext(), "Location changed : Lat: "+location.getLatitude()+""+"\n Lng: "+location.getLongitude(), Toast.LENGTH_SHORT).show();
+                                    if (!isLocationMarkerAdded) {
+                                        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Lokasi saya"));
+                                        isLocationMarkerAdded = true;
+                                    }
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
                                 }
                             }
                         });
@@ -168,6 +172,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         }
     }
+
+
     private LatLng getLatLngFromAddress(String address) {
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
@@ -234,7 +240,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng asalLatLng = latLngList.get(0);
                 LatLng tujuLatLng = latLngList.get(1);
 
-                googleMap.addMarker(new MarkerOptions().position(asalLatLng).title("Lokasi Asal"));
+                // Tambahkan marker untuk lokasi asal jika belum ditambahkan sebelumnya
+                if (!isLocationMarkerAdded) {
+                    googleMap.addMarker(new MarkerOptions().position(asalLatLng).title("Lokasi Asal"));
+                    isLocationMarkerAdded = true;
+                }
                 googleMap.addMarker(new MarkerOptions().position(tujuLatLng).title("Lokasi Tujuan"));
 
                 // Mendapatkan jalur antara dua titik

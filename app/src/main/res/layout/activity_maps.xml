@@ -1,18 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_login_register"
     tools:context=".MapsActivity">
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+    <!-- Tombol Kembali -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_arrow_back"
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:contentDescription="Back"
+        android:onClick="onBackPressed"/>
+
+    <!-- Text -->
+
+    <!-- MapView -->
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Map View"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:layout_toEndOf="@id/btnBack"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="8dp"
+        android:layout_alignTop="@id/btnBack"/>
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:apiKey="AIzaSyDXWk4C2wtezVlkhzB6-ZiZxXLmBaPQRqA"/>
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/btnBack">
 
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:apiKey="AIzaSyDXWk4C2wtezVlkhzB6-ZiZxXLmBaPQRqA"/>
+    </FrameLayout>
 
-
-</FrameLayout>
-
+</RelativeLayout>

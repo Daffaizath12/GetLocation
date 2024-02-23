@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.content.ContentValues;
 
@@ -29,6 +30,18 @@ public class RegisterActivity extends AppCompatActivity {
         addressEditText = findViewById(R.id.address);
         phoneEditText = findViewById(R.id.phone);
         emailEditText = findViewById(R.id.email);
+
+        // Tombol kembali
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Kembali ke MenuActivity
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish(); // Menutup LoginActivity
+            }
+        });
     }
 
     public void register(View view) {

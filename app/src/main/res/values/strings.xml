@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">GetLocation</string>
+    <string name="google_maps_key">AIzaSyBkPrzIjPSI34WkbgmbAme51zw5YmjC4_w</string>
+    <string name="back_button_description"> Home </string>
 </resources>

@@ -1,12 +1,14 @@
 package com.example.getlocation;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,11 +47,31 @@ public class UpdateProfileActivity extends AppCompatActivity {
                 String phone = phoneEditText.getText().toString();
                 String email = emailEditText.getText().toString();
 
-                // Memperbarui data profil pengguna
-                updateProfile(userId, address, phone, email);
+                // Membandingkan dengan nilai yang telah disimpan sebelumnya
+                if (address.equals(savedAddress) && phone.equals(savedPhone) && email.equals(savedEmail)) {
+                    // Tidak ada perubahan, tidak perlu memperbarui
+                    Toast.makeText(UpdateProfileActivity.this, "Tidak ada perubahan yang dilakukan", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Ada perubahan, perbarui profil
+                    updateProfile(userId, address, phone, email);
+                }
+            }
+        });
+
+        // Tombol kembali
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Kembali ke MenuActivity
+                Intent intent = new Intent(UpdateProfileActivity.this, MenuActivity.class);
+                startActivity(intent);
+                finish(); // Menutup LoginActivity
             }
         });
     }
+
+    private String savedAddress, savedPhone, savedEmail;
 
     private void loadUserProfile(int userId) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -60,17 +82,18 @@ public class UpdateProfileActivity extends AppCompatActivity {
             int indexPhone = cursor.getColumnIndexOrThrow("phone");
             int indexEmail = cursor.getColumnIndexOrThrow("email");
 
-            String address = cursor.getString(indexAddress);
-            String phone = cursor.getString(indexPhone);
-            String email = cursor.getString(indexEmail);
+            savedAddress = cursor.getString(indexAddress);
+            savedPhone = cursor.getString(indexPhone);
+            savedEmail = cursor.getString(indexEmail);
 
-            addressEditText.setText(address);
-            phoneEditText.setText(phone);
-            emailEditText.setText(email);
+            addressEditText.setText(savedAddress);
+            phoneEditText.setText(savedPhone);
+            emailEditText.setText(savedEmail);
         }
 
         cursor.close();
     }
+
 
     private void updateProfile(int userId, String address, String phone, String email) {
         // Memperbarui data profil pengguna di database
